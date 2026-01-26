@@ -8,6 +8,7 @@
 #include <vector>
 #include"Fade.h"
 #include "Goal.h"
+#include "GaugeUI.h"
 
 
 
@@ -63,6 +64,7 @@ class GameScene {
 
 	Fade* fade_ = nullptr;
 
+	GaugeUI* gaugeUI_ = nullptr;
 
 public:
 	~GameScene();

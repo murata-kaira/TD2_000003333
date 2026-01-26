@@ -110,6 +110,7 @@
     <ClCompile Include="DeathParticles.cpp" />
     <ClCompile Include="Fade.cpp" />
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="GaugeUI.cpp" />
     <ClCompile Include="Goal.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="DeathParticles.h" />
     <ClInclude Include="Fade.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="GaugeUI.h" />
     <ClInclude Include="Goal.h" />
     <ClInclude Include="MapChipField.h" />
     <ClInclude Include="MyMath.h" />

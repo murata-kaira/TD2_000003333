@@ -17,6 +17,7 @@ GameScene::~GameScene() {
 
 	delete goal_;
 	delete modelGoal_;
+	delete gaugeUI_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -85,6 +86,9 @@ void GameScene::Initialize() {
 	fade_ = new Fade();
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+	gaugeUI_ = new GaugeUI();
+	gaugeUI_->Initialize();
 }
 
 void GameScene::Update() {
@@ -138,6 +142,12 @@ void GameScene::Update() {
 
 	CheckAllCollisions();
 	ChangePhase();
+
+	// Update gauge UI based on player state
+	if (gaugeUI_) {
+		bool isCharging = (player_->GetState() == Player::State::Charging);
+		gaugeUI_->Update(player_->GetChargePower(), isCharging);
+	}
 }
 
 void GameScene::Draw() {
@@ -168,6 +178,11 @@ void GameScene::Draw() {
 		}
 	}
 	Model::PostDraw();
+
+	// Draw gauge UI after 3D models
+	if (gaugeUI_) {
+		gaugeUI_->Draw();
+	}
 
 	fade_->Draw();
 }
