@@ -5,15 +5,16 @@
 
 class MapChipField;
 class Enemy;
+// プレイヤー (ゴルフボール) - Winnie the Pooh's golf ball in 100 Acre Wood Golf
 class Player {
 
 public:
 
-	//ゴルフゲームの状態
+	//ゴルフゲームの状態 - Golf game states
 	enum class State {
-		Idle,     //ボールが停止中、角度選択待ち 
-		Charging, //チャージ可能
-		Moving    //ボールが移動中
+		Idle,     //ボールが停止中、角度選択待ち - Ball stopped, waiting for aim selection
+		Charging, //チャージ可能 - Charging power
+		Moving    //ボールが移動中 - Ball is moving
 	};
 
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);

@@ -169,6 +169,35 @@ void GameScene::Draw() {
 	}
 	Model::PostDraw();
 
+	// Draw UI elements
+	if (player_) {
+		// Display shot count
+		DebugText::GetInstance()->SetPos(50, 50);
+		DebugText::GetInstance()->Printf("Shots: %d", player_->GetShotCount());
+
+		// Display power meter when charging
+		if (player_->GetState() == Player::State::Charging) {
+			DebugText::GetInstance()->SetPos(50, 80);
+			DebugText::GetInstance()->Printf("Power: %.0f%%", player_->GetChargePower() * 100);
+		}
+
+		// Display aiming angle when idle or charging
+		if (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging) {
+			DebugText::GetInstance()->SetPos(50, 110);
+			DebugText::GetInstance()->Printf("Angle: %.1f", player_->GetAimAngle() * 57.3f); // Convert to degrees
+		}
+	}
+
+	// Display goal message
+	if (phase_ == Phase::kGoalReached) {
+		DebugText::GetInstance()->SetPos(300, 300);
+		DebugText::GetInstance()->Printf("Goal! Welcome to 100 Acre Wood!");
+		DebugText::GetInstance()->SetPos(300, 330);
+		DebugText::GetInstance()->Printf("Total Shots: %d", player_->GetShotCount());
+		DebugText::GetInstance()->SetPos(300, 360);
+		DebugText::GetInstance()->Printf("Press SPACE to return to title");
+	}
+
 	fade_->Draw();
 }
 
@@ -240,10 +269,6 @@ void GameScene::ChangePhase() {
 		}
 		break;
 	case Phase::kGoalReached:
-		// Display goal message
-		DebugText::GetInstance()->SetPos(400, 300);
-		DebugText::GetInstance()->SetPos(350, 330);
-		
 		// Allow returning to title after reaching goal
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			phase_ = Phase::kFadeOut;

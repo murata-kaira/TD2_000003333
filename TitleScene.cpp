@@ -80,5 +80,24 @@ void TitleScene::Draw() {
 
 	Model::PostDraw();
 
+	// Display game title and instructions
+	DebugText::GetInstance()->SetPos(250, 150);
+	DebugText::GetInstance()->Printf("100 Acre Wood Golf");
+	
+	DebugText::GetInstance()->SetPos(300, 200);
+	DebugText::GetInstance()->Printf("How to Play:");
+	
+	DebugText::GetInstance()->SetPos(250, 230);
+	DebugText::GetInstance()->Printf("LEFT/RIGHT: Aim direction");
+	
+	DebugText::GetInstance()->SetPos(250, 260);
+	DebugText::GetInstance()->Printf("SPACE: Charge and shoot");
+	
+	DebugText::GetInstance()->SetPos(250, 290);
+	DebugText::GetInstance()->Printf("Goal: Reach the end!");
+	
+	DebugText::GetInstance()->SetPos(280, 350);
+	DebugText::GetInstance()->Printf("Press SPACE to start");
+
 	fade_->Draw();
 }
