@@ -28,6 +28,6 @@ private:
 	// Gauge dimensions and position
 	static inline const float kGaugeWidth = 400.0f;
 	static inline const float kGaugeHeight = 30.0f;
-	static inline const float kGaugeX = 440.0f; // Center horizontally (1280/2 - 400/2)
+	static inline const float kGaugeX = 440.0f; // Centered horizontally: (1280 - 400) / 2
 	static inline const float kGaugeY = 650.0f; // Near bottom
 };

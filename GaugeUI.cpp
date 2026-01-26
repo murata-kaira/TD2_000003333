@@ -5,8 +5,9 @@ using namespace KamataEngine;
 
 void GaugeUI::Initialize() {
 	// Use white texture for both background and foreground
-	textureHandleBackground_ = TextureManager::Load("white1x1.png");
-	textureHandleForeground_ = TextureManager::Load("white1x1.png");
+	uint32_t textureHandle = TextureManager::Load("white1x1.png");
+	textureHandleBackground_ = textureHandle;
+	textureHandleForeground_ = textureHandle;
 
 	// Create background sprite (dark gray)
 	spriteBackground_ = Sprite::Create(textureHandleBackground_, {kGaugeX, kGaugeY});
