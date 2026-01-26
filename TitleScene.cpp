@@ -102,7 +102,7 @@ void TitleScene::Draw() {
 	DebugText::GetInstance()->Printf("How to Play:");
 	
 	DebugText::GetInstance()->SetPos(kUIInstructionX, kUIInstruction1Y);
-	DebugText::GetInstance()->Printf("LEFT/RIGHT: Aim direction");
+	DebugText::GetInstance()->Printf("Arrow Keys: Aim direction");
 	
 	DebugText::GetInstance()->SetPos(kUIInstructionX, kUIInstruction2Y);
 	DebugText::GetInstance()->Printf("SPACE: Charge and shoot");

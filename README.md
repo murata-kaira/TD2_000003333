@@ -10,7 +10,9 @@ A golf game set in the 100 Acre Wood. Control the ball skillfully to reach the g
 
 ## 操作方法 (Controls)
 
-- **LEFT/RIGHT キー**: 照準の方向を調整 (Adjust aim direction)
+- **矢印キー (Arrow Keys)**: 照準の方向を調整 (Adjust aim direction)
+  - UP/DOWN: 上下の角度調整 (Adjust vertical angle)
+  - LEFT/RIGHT: 左右の角度調整 (Adjust horizontal angle)
 - **SPACE キー**: パワーをチャージして発射 (Charge power and shoot)
   - 押し続けるとパワーがチャージされます (Hold to charge power)
   - 離すと発射します (Release to shoot)
@@ -19,7 +21,7 @@ A golf game set in the 100 Acre Wood. Control the ball skillfully to reach the g
 
 1. **タイトル画面**: SPACE キーでゲーム開始
 2. **ゲーム画面**: 
-   - LEFT/RIGHT キーで照準を調整
+   - 矢印キーで照準を調整（上下左右に角度を変更可能）
    - SPACE キーを押してパワーをチャージ
    - SPACE キーを離してボールを発射
    - より少ないショット数でゴールを目指しましょう！

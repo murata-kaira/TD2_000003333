@@ -404,6 +404,13 @@ void Player::InputGolf() {
 		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 			aimAngle_ += kAimRotateSpeed;
 		}
+		// UP/DOWN keys for vertical aiming
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			aimAngle_ += kAimRotateSpeed;
+		}
+		if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+			aimAngle_ -= kAimRotateSpeed;
+		}
 
 		// Start charging with SPACE
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
@@ -423,6 +430,13 @@ void Player::InputGolf() {
 			}
 			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 				aimAngle_ += kAimRotateSpeed;
+			}
+			// UP/DOWN keys for vertical aiming while charging
+			if (Input::GetInstance()->PushKey(DIK_UP)) {
+				aimAngle_ += kAimRotateSpeed;
+			}
+			if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+				aimAngle_ -= kAimRotateSpeed;
 			}
 		} else {
 			// SPACE was released, shoot the ball
