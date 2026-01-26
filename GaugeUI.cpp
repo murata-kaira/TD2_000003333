@@ -3,6 +3,11 @@
 
 using namespace KamataEngine;
 
+GaugeUI::~GaugeUI() {
+	delete spriteBackground_;
+	delete spriteForeground_;
+}
+
 void GaugeUI::Initialize() {
 	// Use white texture for both background and foreground
 	uint32_t textureHandle = TextureManager::Load("white1x1.png");

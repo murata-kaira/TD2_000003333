@@ -10,6 +10,8 @@ public:
 
 	void Draw();
 
+	~GaugeUI();
+
 private:
 	// Background gauge sprites
 	uint32_t textureHandleBackground_ = 0;
