@@ -92,6 +92,8 @@ private:
 	static inline const float kFriction = 0.98f;       //摩擦係数 
 	static inline const float kMinVelocity = 0.01f;    //停止判定の速度閾値
 	static inline const float kAimRotateSpeed = 0.05f; //照準回転速度
+	static inline const float kMinAimAngle = -1.57f;   //最小照準角度（約-90度、真下）
+	static inline const float kMaxAimAngle = 1.57f;    //最大照準角度（約+90度、真上）
 
 
 
