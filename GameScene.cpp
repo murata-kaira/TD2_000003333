@@ -1,7 +1,24 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <numbers>
 
 using namespace KamataEngine;
+
+// UI display constants
+namespace {
+	constexpr float kRadiansToDegrees = 180.0f / std::numbers::pi_v<float>;
+	constexpr int kUIShotCounterX = 50;
+	constexpr int kUIShotCounterY = 50;
+	constexpr int kUIPowerMeterX = 50;
+	constexpr int kUIPowerMeterY = 80;
+	constexpr int kUIAngleDisplayX = 50;
+	constexpr int kUIAngleDisplayY = 110;
+	constexpr int kUIGoalMessageX = 300;
+	constexpr int kUIGoalMessageY = 300;
+	constexpr int kUIGoalShotsY = 330;
+	constexpr int kUIGoalInstructionY = 360;
+}
+
 // デストラクト
 GameScene::~GameScene() {
 	delete modelBlock_;
@@ -172,29 +189,29 @@ void GameScene::Draw() {
 	// Draw UI elements
 	if (player_) {
 		// Display shot count
-		DebugText::GetInstance()->SetPos(50, 50);
+		DebugText::GetInstance()->SetPos(kUIShotCounterX, kUIShotCounterY);
 		DebugText::GetInstance()->Printf("Shots: %d", player_->GetShotCount());
 
 		// Display power meter when charging
 		if (player_->GetState() == Player::State::Charging) {
-			DebugText::GetInstance()->SetPos(50, 80);
+			DebugText::GetInstance()->SetPos(kUIPowerMeterX, kUIPowerMeterY);
 			DebugText::GetInstance()->Printf("Power: %.0f%%", player_->GetChargePower() * 100);
 		}
 
 		// Display aiming angle when idle or charging
 		if (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging) {
-			DebugText::GetInstance()->SetPos(50, 110);
-			DebugText::GetInstance()->Printf("Angle: %.1f", player_->GetAimAngle() * 57.3f); // Convert to degrees
+			DebugText::GetInstance()->SetPos(kUIAngleDisplayX, kUIAngleDisplayY);
+			DebugText::GetInstance()->Printf("Angle: %.1f", player_->GetAimAngle() * kRadiansToDegrees);
 		}
 	}
 
 	// Display goal message
 	if (phase_ == Phase::kGoalReached) {
-		DebugText::GetInstance()->SetPos(300, 300);
+		DebugText::GetInstance()->SetPos(kUIGoalMessageX, kUIGoalMessageY);
 		DebugText::GetInstance()->Printf("Goal! Welcome to 100 Acre Wood!");
-		DebugText::GetInstance()->SetPos(300, 330);
+		DebugText::GetInstance()->SetPos(kUIGoalMessageX, kUIGoalShotsY);
 		DebugText::GetInstance()->Printf("Total Shots: %d", player_->GetShotCount());
-		DebugText::GetInstance()->SetPos(300, 360);
+		DebugText::GetInstance()->SetPos(kUIGoalMessageX, kUIGoalInstructionY);
 		DebugText::GetInstance()->Printf("Press SPACE to return to title");
 	}
 
