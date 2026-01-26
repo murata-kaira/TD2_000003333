@@ -5,15 +5,16 @@
 
 class MapChipField;
 class Enemy;
+// プレイヤー (ゴルフボール) - Winnie the Pooh's golf ball in 100 Acre Wood Golf
 class Player {
 
 public:
 
-	//ゴルフゲームの状態
+	//ゴルフゲームの状態 - Golf game states
 	enum class State {
-		Idle,     //ボールが停止中、角度選択待ち 
-		Charging, //チャージ可能
-		Moving    //ボールが移動中
+		Idle,     //ボールが停止中、角度選択待ち - Ball stopped, waiting for aim selection
+		Charging, //チャージ可能 - Charging power
+		Moving    //ボールが移動中 - Ball is moving
 	};
 
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
@@ -91,6 +92,8 @@ private:
 	static inline const float kFriction = 0.98f;       //摩擦係数 
 	static inline const float kMinVelocity = 0.01f;    //停止判定の速度閾値
 	static inline const float kAimRotateSpeed = 0.05f; //照準回転速度
+	static inline const float kMinAimAngle = -1.57f;   //最小照準角度（約-90度、真下）
+	static inline const float kMaxAimAngle = 1.57f;    //最大照準角度（約+90度、真上）
 
 
 

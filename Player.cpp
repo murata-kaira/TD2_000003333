@@ -3,6 +3,7 @@
 #include "MapChipField.h"
 #include <algorithm>
 #include <numbers>
+#include <cmath>
 
 using namespace KamataEngine;
 using namespace MathUtility;
@@ -404,6 +405,16 @@ void Player::InputGolf() {
 		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 			aimAngle_ += kAimRotateSpeed;
 		}
+		// UP/DOWN keys for vertical aiming
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			aimAngle_ += kAimRotateSpeed;
+		}
+		if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+			aimAngle_ -= kAimRotateSpeed;
+		}
+		
+		// Clamp angle to prevent unlimited rotation
+		aimAngle_ = std::clamp(aimAngle_, kMinAimAngle, kMaxAimAngle);
 
 		// Start charging with SPACE
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
@@ -424,6 +435,16 @@ void Player::InputGolf() {
 			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 				aimAngle_ += kAimRotateSpeed;
 			}
+			// UP/DOWN keys for vertical aiming while charging
+			if (Input::GetInstance()->PushKey(DIK_UP)) {
+				aimAngle_ += kAimRotateSpeed;
+			}
+			if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+				aimAngle_ -= kAimRotateSpeed;
+			}
+			
+			// Clamp angle to prevent unlimited rotation
+			aimAngle_ = std::clamp(aimAngle_, kMinAimAngle, kMaxAimAngle);
 		} else {
 			// SPACE was released, shoot the ball
 			if (chargePower_ > 0.0f) {

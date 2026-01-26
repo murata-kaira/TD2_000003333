@@ -4,6 +4,20 @@
 
 using namespace KamataEngine;
 
+// UI display constants
+namespace {
+	constexpr int kUITitleX = 250;
+	constexpr int kUITitleY = 150;
+	constexpr int kUIHowToPlayX = 300;
+	constexpr int kUIHowToPlayY = 200;
+	constexpr int kUIInstructionX = 250;
+	constexpr int kUIInstruction1Y = 230;
+	constexpr int kUIInstruction2Y = 260;
+	constexpr int kUIInstruction3Y = 290;
+	constexpr int kUIStartPromptX = 280;
+	constexpr int kUIStartPromptY = 350;
+}
+
 TitleScene::~TitleScene() {
 	delete model_;
 	delete modelPlayer_;
@@ -79,6 +93,25 @@ void TitleScene::Draw() {
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
 
 	Model::PostDraw();
+
+	// Display game title and instructions
+	DebugText::GetInstance()->SetPos(kUITitleX, kUITitleY);
+	DebugText::GetInstance()->Printf("100 Acre Wood Golf");
+	
+	DebugText::GetInstance()->SetPos(kUIHowToPlayX, kUIHowToPlayY);
+	DebugText::GetInstance()->Printf("How to Play:");
+	
+	DebugText::GetInstance()->SetPos(kUIInstructionX, kUIInstruction1Y);
+	DebugText::GetInstance()->Printf("Arrow Keys: Aim direction");
+	
+	DebugText::GetInstance()->SetPos(kUIInstructionX, kUIInstruction2Y);
+	DebugText::GetInstance()->Printf("SPACE: Charge and shoot");
+	
+	DebugText::GetInstance()->SetPos(kUIInstructionX, kUIInstruction3Y);
+	DebugText::GetInstance()->Printf("Goal: Reach the end!");
+	
+	DebugText::GetInstance()->SetPos(kUIStartPromptX, kUIStartPromptY);
+	DebugText::GetInstance()->Printf("Press SPACE to start");
 
 	fade_->Draw();
 }
