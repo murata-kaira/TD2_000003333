@@ -4,8 +4,14 @@
 using namespace KamataEngine;
 
 GaugeUI::~GaugeUI() {
-	delete spriteBackground_;
-	delete spriteForeground_;
+	if (spriteBackground_) {
+		delete spriteBackground_;
+		spriteBackground_ = nullptr;
+	}
+	if (spriteForeground_) {
+		delete spriteForeground_;
+		spriteForeground_ = nullptr;
+	}
 }
 
 void GaugeUI::Initialize() {
