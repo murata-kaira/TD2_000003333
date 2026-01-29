@@ -18,6 +18,10 @@ GameScene::~GameScene() {
 	delete goal_;
 	delete modelGoal_;
 	delete sprite_;
+	delete arrowLeftSprite_;
+	delete arrowRightSprite_;
+	delete arrowUpSprite_;
+	delete arrowDownSprite_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -89,6 +93,25 @@ void GameScene::Initialize() {
 	// ファイルからテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sirusi.png");
 	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
+
+	// 照準調整用の矢印スプライトを作成
+	arrowTextureHandle_ = TextureManager::Load("sirusi.png");
+	arrowLeftSprite_ = Sprite::Create(arrowTextureHandle_, {0, 0});
+	arrowRightSprite_ = Sprite::Create(arrowTextureHandle_, {0, 0});
+	arrowUpSprite_ = Sprite::Create(arrowTextureHandle_, {0, 0});
+	arrowDownSprite_ = Sprite::Create(arrowTextureHandle_, {0, 0});
+	
+	// 矢印のサイズを設定（32x32ピクセル）
+	arrowLeftSprite_->SetSize({32, 32});
+	arrowRightSprite_->SetSize({32, 32});
+	arrowUpSprite_->SetSize({32, 32});
+	arrowDownSprite_->SetSize({32, 32});
+
+	// 矢印の回転を設定（上矢印を基準として回転）
+	arrowLeftSprite_->SetRotation(-1.57079632679f);  // -90度
+	arrowRightSprite_->SetRotation(1.57079632679f);  // 90度
+	arrowUpSprite_->SetRotation(0.0f);               // 0度
+	arrowDownSprite_->SetRotation(3.14159265359f);   // 180度
 	
 }
 
@@ -143,6 +166,27 @@ void GameScene::Update() {
 
 	CheckAllCollisions();
 	ChangePhase();
+
+	// 照準調整中に矢印の位置を更新
+	if (player_ && (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging)) {
+		// プレイヤーのワールド座標を取得
+		Vector3 playerWorldPos = player_->GetWorldPosition();
+		
+		// ワールド座標をスクリーン座標に変換（簡易版：カメラのビュー行列を考慮）
+		// 実際のゲームではビュー・プロジェクション変換が必要だが、
+		// ここでは簡易的にプレイヤーの周囲に配置
+		
+		// カメラの位置とプレイヤーの位置から画面座標を計算
+		float screenCenterX = 640.0f;  // 画面中央X
+		float screenCenterY = 360.0f;  // 画面中央Y
+		float arrowDistance = 80.0f;   // プレイヤーからの距離
+		
+		// 矢印を画面中央（プレイヤーの位置）の周りに配置
+		arrowLeftSprite_->SetPosition({screenCenterX - arrowDistance, screenCenterY});
+		arrowRightSprite_->SetPosition({screenCenterX + arrowDistance, screenCenterY});
+		arrowUpSprite_->SetPosition({screenCenterX, screenCenterY - arrowDistance});
+		arrowDownSprite_->SetPosition({screenCenterX, screenCenterY + arrowDistance});
+	}
 }
 
 void GameScene::Draw() {
@@ -181,6 +225,14 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	sprite_->Draw();
+
+	// 照準調整中に矢印を描画
+	if (player_ && (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging)) {
+		arrowLeftSprite_->Draw();
+		arrowRightSprite_->Draw();
+		arrowUpSprite_->Draw();
+		arrowDownSprite_->Draw();
+	}
 
 	Sprite::PostDraw();
 
