@@ -70,11 +70,19 @@ class GameScene {
 	KamataEngine::Sprite* sprite_ = nullptr;
 
 	// 照準調整用の矢印スプライト
-	uint32_t arrowTextureHandle_ = 0;
 	KamataEngine::Sprite* arrowLeftSprite_ = nullptr;
 	KamataEngine::Sprite* arrowRightSprite_ = nullptr;
 	KamataEngine::Sprite* arrowUpSprite_ = nullptr;
 	KamataEngine::Sprite* arrowDownSprite_ = nullptr;
+
+	// 矢印表示用の定数
+	static inline const float kScreenCenterX = 640.0f;  // 画面中央X (1280/2)
+	static inline const float kScreenCenterY = 360.0f;  // 画面中央Y (720/2)
+	static inline const float kArrowDistance = 80.0f;   // プレイヤーからの矢印距離
+	static inline const float kArrowSize = 32.0f;       // 矢印のサイズ
+
+	// 矢印の表示状態
+	bool shouldShowArrows_ = false;
 
 	
 
