@@ -201,10 +201,18 @@ void GameScene::Draw() {
 
 	// プレイヤーが照準調整中の場合、矢印を表示
 	if (player_ && (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging)) {
-		arrowUpSprite_->Draw();
-		arrowDownSprite_->Draw();
-		arrowLeftSprite_->Draw();
-		arrowRightSprite_->Draw();
+		if (arrowUpSprite_) {
+			arrowUpSprite_->Draw();
+		}
+		if (arrowDownSprite_) {
+			arrowDownSprite_->Draw();
+		}
+		if (arrowLeftSprite_) {
+			arrowLeftSprite_->Draw();
+		}
+		if (arrowRightSprite_) {
+			arrowRightSprite_->Draw();
+		}
 	}
 
 	Sprite::PostDraw();
