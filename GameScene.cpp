@@ -87,7 +87,7 @@ void GameScene::Initialize() {
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
 	// ファイルからテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("st.png");
+	textureHandle_ = TextureManager::Load("sirusi.png");
 	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
 	
 }
