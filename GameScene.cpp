@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "Math.h"
 #include <numbers>
+#include <cmath>
 
 using namespace KamataEngine;
 // デストラクト
@@ -117,6 +118,7 @@ void GameScene::Initialize() {
 
 	// 矢印の表示状態を初期化
 	shouldShowArrows_ = false;
+	arrowAnimationTimer_ = 0.0f;
 	
 }
 
@@ -182,6 +184,19 @@ void GameScene::Update() {
 		arrowRightSprite_->SetPosition({kScreenCenterX + kArrowDistance, kScreenCenterY});
 		arrowUpSprite_->SetPosition({kScreenCenterX, kScreenCenterY - kArrowDistance});
 		arrowDownSprite_->SetPosition({kScreenCenterX, kScreenCenterY + kArrowDistance});
+
+		// 矢印のパルスアニメーション
+		arrowAnimationTimer_ += kArrowAnimationSpeed;
+		float alpha = kArrowMinAlpha + (kArrowMaxAlpha - kArrowMinAlpha) * (std::sin(arrowAnimationTimer_) * 0.5f + 0.5f);
+		
+		// すべての矢印に同じアルファ値を適用
+		arrowLeftSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		arrowRightSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		arrowUpSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		arrowDownSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+	} else {
+		// 非表示時はタイマーをリセット
+		arrowAnimationTimer_ = 0.0f;
 	}
 }
 
