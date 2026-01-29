@@ -1,5 +1,7 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <numbers>
+#include <cmath>
 
 using namespace KamataEngine;
 // デストラクト
@@ -15,9 +17,12 @@ GameScene::~GameScene() {
 	delete modelDeathParticles_;
 	delete fade_;
 
+	//ゴール
 	delete goal_;
 	delete modelGoal_;
+	//矢印
 	delete sprite_;
+	delete aimArrowSprite_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -38,9 +43,6 @@ void GameScene::Initialize() {
 
 	modelDeathParticles_ = Model::CreateFromOBJ("deathParticle", true);
 
-	// Use the block model for the goal (can be changed to a custom goal model later)
-	modelGoal_ = Model::CreateFromOBJ("cube", true);
-
 	debugCamera_ = new DebugCamera(1280, 720);
 
 	mapChipField_ = new MapChipField;
@@ -51,18 +53,11 @@ void GameScene::Initialize() {
 	player_ = new Player();
 
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
-
+	
 	player_->SetMapChipField(mapChipField_);
 
 	skydome_ = new Skydome();
 	skydome_->Initialize(modelSkydome_, &camera_);
-
-	
-	// Create goal at a position further in the level
-	Vector3 goalPosition = mapChipField_->GetMapChipPositionByIndex(80, 18);
-	goal_ = new Goal();
-	goal_->Initialize(modelGoal_, &camera_, goalPosition);
-
 
 	cameraController_ = new CameraController();
 	cameraController_->Initialize();
@@ -86,10 +81,33 @@ void GameScene::Initialize() {
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
+	//追加した部分
+	////////////////////////////////////////
+	 
+	// ゴールにはブロックモデルを使用（後で変更する
+	modelGoal_ = Model::CreateFromOBJ("cube", true);
+
+	// ゴールをステージの奥の位置に配置
+	Vector3 goalPosition = mapChipField_->GetMapChipPositionByIndex(80, 18);
+	goal_ = new Goal();
+	goal_->Initialize(modelGoal_, &camera_, goalPosition);
+
 	// ファイルからテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sirusi.png");
 	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
 	
+		// 照準調整用の矢印スプライトを作成
+	// 照準方向を示す矢印スプライトを作成（同じテクスチャを使用）
+	aimArrowSprite_ = Sprite::Create(textureHandle_, {-100, -100}); // 初期位置はオフスクリーン
+	
+	// 矢印のサイズを設定
+	aimArrowSprite_->SetSize({kArrowSize, kArrowSize});
+
+	// 矢印の表示状態を初期化
+	shouldShowArrows_ = false;
+	arrowAnimationTimer_ = 0.0f;
+
+	///////////////////////////////////////
 }
 
 void GameScene::Update() {
@@ -143,6 +161,44 @@ void GameScene::Update() {
 
 	CheckAllCollisions();
 	ChangePhase();
+
+
+	//追加した部分
+	///////////////////////////////////////
+	
+	// 照準調整中に矢印の位置を更新
+	Player::State currentState = player_ ? player_->GetState() : Player::State::Moving;
+	shouldShowArrows_ = player_ && (currentState == Player::State::Idle || currentState == Player::State::Charging);
+	if (shouldShowArrows_) {
+		// プレイヤーの照準角度を取得
+		float aimAngle = player_->GetAimAngle();
+
+		// 照準方向に矢印を配置（画面中央から指定距離）
+		float arrowX = kScreenCenterX + std::cos(aimAngle) * kArrowDistance;
+		float arrowY = kScreenCenterY - std::sin(aimAngle) * kArrowDistance; // Y軸は下向きが正なので反転
+		aimArrowSprite_->SetPosition({arrowX, arrowY});
+
+		// 矢印を照準方向に回転（上向きが基準なので90度調整）
+		aimArrowSprite_->SetRotation(-aimAngle + std::numbers::pi_v<float> / 2.0f);
+		// 矢印のパルスアニメーション
+		arrowAnimationTimer_ += kArrowAnimationSpeed;
+
+		// タイマーを2πの範囲内に保つ（浮動小数点の精度を維持）
+		arrowAnimationTimer_ = std::fmod(arrowAnimationTimer_, 2.0f * std::numbers::pi_v<float>);
+
+		float alpha = kArrowMinAlpha + (kArrowMaxAlpha - kArrowMinAlpha) * (std::sin(arrowAnimationTimer_) * 0.5f + 0.5f);
+
+		// 矢印にアルファ値を適用
+		aimArrowSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+	} else {
+		// 非表示時はタイマーをリセット
+		arrowAnimationTimer_ = 0.0f;
+
+	}
+
+	///////////////////////////////////////
+	
+
 }
 
 void GameScene::Draw() {
@@ -155,12 +211,14 @@ void GameScene::Draw() {
 
 	skydome_->Draw();
 
-	
 
+	///////////////////////////////////////
+	// ゴールの描画
 		if (goal_) {
 		goal_->Draw();
 	}
-
+    ///////////////////////////////////////
+	
 
 	if (deathParticles_) {
 		deathParticles_->Draw();
@@ -178,12 +236,19 @@ void GameScene::Draw() {
 	
 	Model::PostDraw();
 	
+
+	///////////////////////////////////////
+	
 	Sprite::PreDraw(dxCommon->GetCommandList());
-
 	sprite_->Draw();
-
+	// 照準調整中に矢印を描画
+	if (shouldShowArrows_) {
+		aimArrowSprite_->Draw();
+	}
 	Sprite::PostDraw();
 
+	///////////////////////////////////////
+	
 
 	fade_->Draw();
 }
@@ -212,13 +277,15 @@ void GameScene::GenerateBlocks() {
 	}
 }
 
+//追加した部分
+//////////////////////////////////////////////////////////////////////
 void GameScene::CheckAllCollisions() {
 #pragma region
 	AABB aabb1;
 
 	aabb1 = player_->GetAABB();
 
-	// Check collision with goal
+	//ゴールとの当たり判定をチェック
 	if (goal_ && phase_ == Phase::kPlay) {
 		Vector3 playerPos = player_->GetWorldPosition();
 		Vector3 goalPos = goal_->GetWorldPosition();
@@ -240,6 +307,7 @@ void GameScene::CheckAllCollisions() {
 #pragma endregion
 }
 
+
 void GameScene::ChangePhase() {
 
 	switch (phase_) {
@@ -256,11 +324,8 @@ void GameScene::ChangePhase() {
 		}
 		break;
 	case Phase::kGoalReached:
-		// Display goal message
-		DebugText::GetInstance()->SetPos(400, 300);
-		DebugText::GetInstance()->SetPos(350, 330);
-		
-		// Allow returning to title after reaching goal
+	
+		//ゴール到達後にタイトルへ戻る
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			phase_ = Phase::kFadeOut;
 			fade_->Start(Fade::Status::FadeOut, 1.0f);
@@ -285,3 +350,5 @@ void GameScene::ChangePhase() {
 		break;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////

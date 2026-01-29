@@ -138,7 +138,6 @@ private:
 
 	void CheckMapMove(const CollisionMapInfo& info);
 
-	void CheckMapCeiling(const CollisionMapInfo& info);
 
 	void CheckMapWall(const CollisionMapInfo& info);
 

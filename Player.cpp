@@ -258,13 +258,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 
 void Player::CheckMapMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
 
-void Player::CheckMapCeiling(const CollisionMapInfo& info) {
 
-	if (info.ceiling) {
-		DebugText::GetInstance()->ConsolePrintf("hit ceiling\n");
-		velocity_.y = 0;
-	}
-}
 
 void Player::CheckMapWall(const CollisionMapInfo& info) {
 
@@ -381,12 +375,12 @@ void Player::InputGolf() {
 		}
 		break;
 	case State::Charging:
-		// Charge power while holding SPACE
+		//SPACEキーを押し続けている間チャージパワーを増加
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			chargePower_ += kChargeSpeed;
 			chargePower_ = std::min(chargePower_, 1.0f);
 
-			// Continue rotating aim while charging
+			//チャージ中も照準の回転を継続
 			if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 				aimAngle_ -= kAimRotateSpeed;
 			}
@@ -394,7 +388,7 @@ void Player::InputGolf() {
 				aimAngle_ += kAimRotateSpeed;
 			}
 
-			// UP/DOWN keys for vertical aiming while charging
+			//チャージ中の上下キーで縦方向の照準を調整
 			if (Input::GetInstance()->PushKey(DIK_UP)) {
 				aimAngle_ += kAimRotateSpeed;
 			}
@@ -402,11 +396,11 @@ void Player::InputGolf() {
 				aimAngle_ -= kAimRotateSpeed;
 			}
 
-			// Clamp angle to prevent unlimited rotation
+			//無限に回転しないように角度を制限
 			aimAngle_ = std::clamp(aimAngle_, kMinAimAngle, kMaxAimAngle);
 
 		} else {
-			// SPACE was released, shoot the ball
+			//SPACEキーが離されたらボールを打つ
 			if (chargePower_ > 0.0f) {
 				float launchSpeed = chargePower_ * kMaxChargePower;
 				velocity_.x = std::cos(aimAngle_) * launchSpeed;
@@ -418,12 +412,12 @@ void Player::InputGolf() {
 		}
 		break;
 	case State::Moving:
-		// Ball is moving, apply friction
+		//ボールが移動中の場合、摩擦を適用
 		if (onGround_) {
 			velocity_.x *= kFriction;
 			velocity_.y *= kFriction;
 
-			// Stop if velocity is very small
+			//速度が非常に小さい場合は停止
 			float speed = std::sqrt(velocity_.x * velocity_.x + velocity_.y * velocity_.y);
 			if (speed < kMinVelocity) {
 				velocity_.x = 0;
