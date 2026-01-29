@@ -3,6 +3,7 @@
 #include "MapChipField.h"
 #include <algorithm>
 #include <numbers>
+#include <cmath>
 
 using namespace KamataEngine;
 using namespace MathUtility;
@@ -81,50 +82,7 @@ AABB Player::GetAABB() {
 	return aabb;
 }
 
-void Player::InputMove() {
 
-	if (onGround_) {
-		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
-
-			Vector3 acceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-				if (velocity_.x < 0.0f) {
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x += kAcceleration;
-				if (lrDirection_ != LRDirection::kRight) {
-					lrDirection_ = LRDirection::kRight;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-
-			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-				if (velocity_.x > 0.0f) {
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-
-				acceleration.x -= kAcceleration;
-				if (lrDirection_ != LRDirection::kLeft) {
-					lrDirection_ = LRDirection::kLeft;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-			}
-			velocity_ += acceleration;
-
-			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-		} else {
-			velocity_.x *= (1.0f - kAttenuation);
-		}
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
-			velocity_ += Vector3(0, kJumpAcceleration, 0);
-		}
-
-	} else {
-		velocity_ += Vector3(0, -kGravityAcceleration, 0);
-		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
-	}
-}
 
 void Player::CheckMapCollision(CollisionMapInfo& info) {
 
@@ -405,6 +363,17 @@ void Player::InputGolf() {
 			aimAngle_ += kAimRotateSpeed;
 		}
 
+			// UP/DOWN keys for vertical aiming
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			aimAngle_ += kAimRotateSpeed;
+		}
+		if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+			aimAngle_ -= kAimRotateSpeed;
+		}
+
+			// Clamp angle to prevent unlimited rotation
+		aimAngle_ = std::clamp(aimAngle_, kMinAimAngle, kMaxAimAngle);
+
 		// Start charging with SPACE
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			state_ = State::Charging;
@@ -424,6 +393,18 @@ void Player::InputGolf() {
 			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 				aimAngle_ += kAimRotateSpeed;
 			}
+
+			// UP/DOWN keys for vertical aiming while charging
+			if (Input::GetInstance()->PushKey(DIK_UP)) {
+				aimAngle_ += kAimRotateSpeed;
+			}
+			if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+				aimAngle_ -= kAimRotateSpeed;
+			}
+
+			// Clamp angle to prevent unlimited rotation
+			aimAngle_ = std::clamp(aimAngle_, kMinAimAngle, kMaxAimAngle);
+
 		} else {
 			// SPACE was released, shoot the ball
 			if (chargePower_ > 0.0f) {
