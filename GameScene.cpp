@@ -20,10 +20,7 @@ GameScene::~GameScene() {
 	delete goal_;
 	delete modelGoal_;
 	delete sprite_;
-	delete arrowLeftSprite_;
-	delete arrowRightSprite_;
-	delete arrowUpSprite_;
-	delete arrowDownSprite_;
+	delete aimArrowSprite_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -96,25 +93,11 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("sirusi.png");
 	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
 
-	// 照準調整用の矢印スプライトを作成（同じテクスチャを使用）
-	arrowLeftSprite_ = Sprite::Create(textureHandle_, {-100, -100});  // 初期位置はオフスクリーン
-	arrowRightSprite_ = Sprite::Create(textureHandle_, {-100, -100});
-	arrowUpSprite_ = Sprite::Create(textureHandle_, {-100, -100});
-	arrowDownSprite_ = Sprite::Create(textureHandle_, {-100, -100});
+	// 照準方向を示す矢印スプライトを作成（同じテクスチャを使用）
+	aimArrowSprite_ = Sprite::Create(textureHandle_, {-100, -100});  // 初期位置はオフスクリーン
 	
 	// 矢印のサイズを設定
-	arrowLeftSprite_->SetSize({kArrowSize, kArrowSize});
-	arrowRightSprite_->SetSize({kArrowSize, kArrowSize});
-	arrowUpSprite_->SetSize({kArrowSize, kArrowSize});
-	arrowDownSprite_->SetSize({kArrowSize, kArrowSize});
-
-	// 矢印の回転を設定（上矢印を基準として回転）
-	const float kPiOver2 = std::numbers::pi_v<float> / 2.0f;  // 90度
-	const float kPi = std::numbers::pi_v<float>;                // 180度
-	arrowLeftSprite_->SetRotation(-kPiOver2);                   // -90度
-	arrowRightSprite_->SetRotation(kPiOver2);                   // 90度
-	arrowUpSprite_->SetRotation(0.0f);                          // 0度
-	arrowDownSprite_->SetRotation(kPi);                         // 180度
+	aimArrowSprite_->SetSize({kArrowSize, kArrowSize});
 
 	// 矢印の表示状態を初期化
 	shouldShowArrows_ = false;
@@ -179,11 +162,16 @@ void GameScene::Update() {
 	shouldShowArrows_ = player_ && (currentState == Player::State::Idle || currentState == Player::State::Charging);
 	
 	if (shouldShowArrows_) {
-		// 矢印を画面中央の周りに配置
-		arrowLeftSprite_->SetPosition({kScreenCenterX - kArrowDistance, kScreenCenterY});
-		arrowRightSprite_->SetPosition({kScreenCenterX + kArrowDistance, kScreenCenterY});
-		arrowUpSprite_->SetPosition({kScreenCenterX, kScreenCenterY - kArrowDistance});
-		arrowDownSprite_->SetPosition({kScreenCenterX, kScreenCenterY + kArrowDistance});
+		// プレイヤーの照準角度を取得
+		float aimAngle = player_->GetAimAngle();
+		
+		// 照準方向に矢印を配置（画面中央から指定距離）
+		float arrowX = kScreenCenterX + std::cos(aimAngle) * kArrowDistance;
+		float arrowY = kScreenCenterY - std::sin(aimAngle) * kArrowDistance;  // Y軸は下向きが正なので反転
+		aimArrowSprite_->SetPosition({arrowX, arrowY});
+		
+		// 矢印を照準方向に回転（上向きが基準なので90度調整）
+		aimArrowSprite_->SetRotation(-aimAngle + std::numbers::pi_v<float> / 2.0f);
 
 		// 矢印のパルスアニメーション
 		arrowAnimationTimer_ += kArrowAnimationSpeed;
@@ -191,11 +179,8 @@ void GameScene::Update() {
 		arrowAnimationTimer_ = std::fmod(arrowAnimationTimer_, 2.0f * std::numbers::pi_v<float>);
 		float alpha = kArrowMinAlpha + (kArrowMaxAlpha - kArrowMinAlpha) * (std::sin(arrowAnimationTimer_) * 0.5f + 0.5f);
 		
-		// すべての矢印に同じアルファ値を適用
-		arrowLeftSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		arrowRightSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		arrowUpSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		arrowDownSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		// 矢印にアルファ値を適用
+		aimArrowSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	} else {
 		// 非表示時はタイマーをリセット
 		arrowAnimationTimer_ = 0.0f;
@@ -241,10 +226,7 @@ void GameScene::Draw() {
 
 	// 照準調整中に矢印を描画
 	if (shouldShowArrows_) {
-		arrowLeftSprite_->Draw();
-		arrowRightSprite_->Draw();
-		arrowUpSprite_->Draw();
-		arrowDownSprite_->Draw();
+		aimArrowSprite_->Draw();
 	}
 
 	Sprite::PostDraw();

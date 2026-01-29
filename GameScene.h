@@ -69,11 +69,8 @@ class GameScene {
 	//スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
 
-	// 照準調整用の矢印スプライト
-	KamataEngine::Sprite* arrowLeftSprite_ = nullptr;
-	KamataEngine::Sprite* arrowRightSprite_ = nullptr;
-	KamataEngine::Sprite* arrowUpSprite_ = nullptr;
-	KamataEngine::Sprite* arrowDownSprite_ = nullptr;
+	// 照準調整用の矢印スプライト（照準方向を示す単一の矢印）
+	KamataEngine::Sprite* aimArrowSprite_ = nullptr;
 
 	// 矢印表示用の定数
 	static inline const float kScreenCenterX = 640.0f;  // 画面中央X (1280/2)
