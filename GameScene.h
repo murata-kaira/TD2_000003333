@@ -64,6 +64,14 @@ class GameScene {
 	Fade* fade_ = nullptr;
 
 
+	//テクスチャハンドル
+	uint32_t textureHandle_ = 0;
+	//スプライト
+	KamataEngine::Sprite* sprite_ = nullptr;
+
+	
+
+
 public:
 	~GameScene();
 

@@ -17,6 +17,7 @@ GameScene::~GameScene() {
 
 	delete goal_;
 	delete modelGoal_;
+	delete sprite_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -72,7 +73,6 @@ void GameScene::Initialize() {
 	cameraController_->SetMovableArea(cameraArea);
 
 	worldTransform_.Initialize();
-
 	camera_.Initialize();
 
 	GenerateBlocks();
@@ -85,6 +85,11 @@ void GameScene::Initialize() {
 	fade_ = new Fade();
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+	// ファイルからテクスチャを読み込む
+	textureHandle_ = TextureManager::Load("st.png");
+	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
+	
 }
 
 void GameScene::Update() {
@@ -150,6 +155,8 @@ void GameScene::Draw() {
 
 	skydome_->Draw();
 
+	
+
 		if (goal_) {
 		goal_->Draw();
 	}
@@ -167,7 +174,16 @@ void GameScene::Draw() {
 			modelBlock_->Draw(*worldTransformBlock, camera_);
 		}
 	}
+
+	
 	Model::PostDraw();
+	
+	Sprite::PreDraw(dxCommon->GetCommandList());
+
+	sprite_->Draw();
+
+	Sprite::PostDraw();
+
 
 	fade_->Draw();
 }
@@ -207,14 +223,14 @@ void GameScene::CheckAllCollisions() {
 		Vector3 playerPos = player_->GetWorldPosition();
 		Vector3 goalPos = goal_->GetWorldPosition();
 
-		// Calculate squared distance for optimization (avoid sqrt)
+	// 最適化のために距離の二乗を計算する
 		float dx = playerPos.x - goalPos.x;
 		float dy = playerPos.y - goalPos.y;
 		float dz = playerPos.z - goalPos.z;
 		float distanceSquared = dx * dx + dy * dy + dz * dz;
 		float radiusSquared = Goal::kRadius * Goal::kRadius;
 
-		// Check if player reached the goal
+		// プレイヤーがゴールに到達したか確認する
 		if (distanceSquared < radiusSquared) {
 			phase_ = Phase::kGoalReached;
 		}

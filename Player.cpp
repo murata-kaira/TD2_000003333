@@ -40,7 +40,7 @@ void Player::Update() {
 	CheckMapLanding(collisionMapInfo);
 
 	CheckMapLanding(collisionMapInfo);
-
+	
 	AnimateTurn();
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);

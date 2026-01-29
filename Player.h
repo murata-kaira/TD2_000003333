@@ -86,7 +86,7 @@ private:
 	int shotCount_ = 0;        //ショット数
 
 	//ゴルフゲーム用定数
-	static inline const float kMaxChargePower = 2.0f;  //最大発射速度
+	static inline const float kMaxChargePower = 1.0f;  //最大発射速度
 	static inline const float kChargeSpeed = 0.02f;    //チャージ速度
 	static inline const float kFriction = 0.98f;       //摩擦係数 
 	static inline const float kMinVelocity = 0.01f;    //停止判定の速度閾値
@@ -119,7 +119,7 @@ private:
 
 	bool isDead_ = false;
 
-	void InputMove();
+	
 
 	
 	void InputGolf();
