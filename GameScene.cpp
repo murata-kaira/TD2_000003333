@@ -187,6 +187,8 @@ void GameScene::Update() {
 
 		// 矢印のパルスアニメーション
 		arrowAnimationTimer_ += kArrowAnimationSpeed;
+		// タイマーを2πの範囲内に保つ（浮動小数点の精度を維持）
+		arrowAnimationTimer_ = std::fmod(arrowAnimationTimer_, 2.0f * std::numbers::pi_v<float>);
 		float alpha = kArrowMinAlpha + (kArrowMaxAlpha - kArrowMinAlpha) * (std::sin(arrowAnimationTimer_) * 0.5f + 0.5f);
 		
 		// すべての矢印に同じアルファ値を適用
