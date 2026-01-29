@@ -157,21 +157,30 @@ void GameScene::Update() {
 	CheckAllCollisions();
 	ChangePhase();
 
-	// 照準調整中に矢印の位置を更新
+	// 照準調整中および移動中に矢印の位置を更新
 	Player::State currentState = player_ ? player_->GetState() : Player::State::Moving;
-	shouldShowArrows_ = player_ && (currentState == Player::State::Idle || currentState == Player::State::Charging);
+	shouldShowArrows_ = player_ != nullptr;  // プレイヤーが存在する限り矢印を表示
 	
 	if (shouldShowArrows_) {
-		// プレイヤーの照準角度を取得
-		float aimAngle = player_->GetAimAngle();
+		float displayAngle = 0.0f;
 		
-		// 照準方向に矢印を配置（画面中央から指定距離）
-		float arrowX = kScreenCenterX + std::cos(aimAngle) * kArrowDistance;
-		float arrowY = kScreenCenterY - std::sin(aimAngle) * kArrowDistance;  // Y軸は下向きが正なので反転
+		// 状態に応じて矢印の向きを決定
+		if (currentState == Player::State::Idle || currentState == Player::State::Charging) {
+			// 照準中：照準角度を使用
+			displayAngle = player_->GetAimAngle();
+		} else if (currentState == Player::State::Moving) {
+			// 移動中：実際の移動方向（速度ベクトル）を使用
+			KamataEngine::Vector3 velocity = player_->GetVelocity();
+			displayAngle = std::atan2(velocity.y, velocity.x);
+		}
+		
+		// 矢印を表示方向に配置（画面中央から指定距離）
+		float arrowX = kScreenCenterX + std::cos(displayAngle) * kArrowDistance;
+		float arrowY = kScreenCenterY - std::sin(displayAngle) * kArrowDistance;  // Y軸は下向きが正なので反転
 		aimArrowSprite_->SetPosition({arrowX, arrowY});
 		
-		// 矢印を照準方向に回転（上向きが基準なので90度調整）
-		aimArrowSprite_->SetRotation(-aimAngle + std::numbers::pi_v<float> / 2.0f);
+		// 矢印を表示方向に回転（上向きが基準なので90度調整）
+		aimArrowSprite_->SetRotation(-displayAngle + std::numbers::pi_v<float> / 2.0f);
 
 		// 矢印のパルスアニメーション
 		arrowAnimationTimer_ += kArrowAnimationSpeed;
