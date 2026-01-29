@@ -1,5 +1,7 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <numbers>
+#include <cmath>
 
 using namespace KamataEngine;
 // デストラクト
@@ -18,6 +20,7 @@ GameScene::~GameScene() {
 	delete goal_;
 	delete modelGoal_;
 	delete sprite_;
+	delete aimArrowSprite_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -89,6 +92,16 @@ void GameScene::Initialize() {
 	// ファイルからテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sirusi.png");
 	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
+
+	// 照準方向を示す矢印スプライトを作成（同じテクスチャを使用）
+	aimArrowSprite_ = Sprite::Create(textureHandle_, {-100, -100});  // 初期位置はオフスクリーン
+	
+	// 矢印のサイズを設定
+	aimArrowSprite_->SetSize({kArrowSize, kArrowSize});
+
+	// 矢印の表示状態を初期化
+	shouldShowArrows_ = false;
+	arrowAnimationTimer_ = 0.0f;
 	
 }
 
@@ -143,6 +156,51 @@ void GameScene::Update() {
 
 	CheckAllCollisions();
 	ChangePhase();
+
+	// 照準調整中および移動中に矢印の位置を更新
+	Player::State currentState = player_ ? player_->GetState() : Player::State::Moving;
+	shouldShowArrows_ = player_ != nullptr;  // プレイヤーが存在する限り矢印を表示
+	
+	if (shouldShowArrows_) {
+		float displayAngle = 0.0f;
+		
+		// 状態に応じて矢印の向きを決定
+		if (currentState == Player::State::Idle || currentState == Player::State::Charging) {
+			// 照準中：照準角度を使用
+			displayAngle = player_->GetAimAngle();
+		} else if (currentState == Player::State::Moving) {
+			// 移動中：実際の移動方向（速度ベクトル）を使用
+			KamataEngine::Vector3 velocity = player_->GetVelocity();
+			float velocityMagnitude = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+			
+			// 速度が十分にある場合のみ速度方向を使用、そうでなければ照準角度を維持
+			if (velocityMagnitude > 0.01f) {
+				displayAngle = std::atan2(velocity.y, velocity.x);
+			} else {
+				displayAngle = player_->GetAimAngle();
+			}
+		}
+		
+		// 矢印を表示方向に配置（画面中央から指定距離）
+		float arrowX = kScreenCenterX + std::cos(displayAngle) * kArrowDistance;
+		float arrowY = kScreenCenterY - std::sin(displayAngle) * kArrowDistance;  // Y軸は下向きが正なので反転
+		aimArrowSprite_->SetPosition({arrowX, arrowY});
+		
+		// 矢印を表示方向に回転（上向きが基準なので90度調整）
+		aimArrowSprite_->SetRotation(-displayAngle + std::numbers::pi_v<float> / 2.0f);
+
+		// 矢印のパルスアニメーション
+		arrowAnimationTimer_ += kArrowAnimationSpeed;
+		// タイマーを2πの範囲内に保つ（浮動小数点の精度を維持）
+		arrowAnimationTimer_ = std::fmod(arrowAnimationTimer_, 2.0f * std::numbers::pi_v<float>);
+		float alpha = kArrowMinAlpha + (kArrowMaxAlpha - kArrowMinAlpha) * (std::sin(arrowAnimationTimer_) * 0.5f + 0.5f);
+		
+		// 矢印にアルファ値を適用
+		aimArrowSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
+	} else {
+		// 非表示時はタイマーをリセット
+		arrowAnimationTimer_ = 0.0f;
+	}
 }
 
 void GameScene::Draw() {
@@ -181,6 +239,11 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	sprite_->Draw();
+
+	// 照準調整中に矢印を描画
+	if (shouldShowArrows_) {
+		aimArrowSprite_->Draw();
+	}
 
 	Sprite::PostDraw();
 
