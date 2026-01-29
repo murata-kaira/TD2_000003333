@@ -60,8 +60,10 @@ private:
 
 	KamataEngine::Vector3 velocity_ = {};
 
-	// Aim arrow sprite
-	KamataEngine::Sprite* aimArrowSprite_ = nullptr;
+	// Aim arrow sprites (shaft and arrowhead)
+	KamataEngine::Sprite* aimArrowShaft_ = nullptr;
+	KamataEngine::Sprite* aimArrowHead1_ = nullptr;
+	KamataEngine::Sprite* aimArrowHead2_ = nullptr;
 	uint32_t aimArrowTextureHandle_ = 0;
 
 	

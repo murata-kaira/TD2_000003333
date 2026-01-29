@@ -9,7 +9,9 @@ using namespace KamataEngine;
 using namespace MathUtility;
 
 Player::~Player() {
-	delete aimArrowSprite_;
+	delete aimArrowShaft_;
+	delete aimArrowHead1_;
+	delete aimArrowHead2_;
 }
 
 void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position) {
@@ -26,12 +28,26 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
 
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 
-	// Initialize aim arrow sprite
+	// Initialize aim arrow sprites (shaft + arrowhead)
 	aimArrowTextureHandle_ = TextureManager::Load("white1x1.png");
-	aimArrowSprite_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
-	aimArrowSprite_->SetSize(Vector2(60, 10)); // Arrow dimensions: 60 pixels long, 10 pixels wide
-	aimArrowSprite_->SetAnchorPoint(Vector2(0.0f, 0.5f)); // Anchor at left-center so it rotates from the base
-	aimArrowSprite_->SetColor(Vector4(1, 0, 0, 0.8f)); // Red color with slight transparency
+	
+	// Arrow shaft - horizontal line
+	aimArrowShaft_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
+	aimArrowShaft_->SetSize(Vector2(80, 6)); // 80 pixels long, 6 pixels wide
+	aimArrowShaft_->SetAnchorPoint(Vector2(0.0f, 0.5f)); // Anchor at left-center
+	aimArrowShaft_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f)); // Red color
+	
+	// Arrowhead part 1 (upper diagonal)
+	aimArrowHead1_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
+	aimArrowHead1_->SetSize(Vector2(20, 4)); // 20 pixels long, 4 pixels wide
+	aimArrowHead1_->SetAnchorPoint(Vector2(0.0f, 0.5f));
+	aimArrowHead1_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f));
+	
+	// Arrowhead part 2 (lower diagonal)
+	aimArrowHead2_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
+	aimArrowHead2_->SetSize(Vector2(20, 4)); // 20 pixels long, 4 pixels wide
+	aimArrowHead2_->SetAnchorPoint(Vector2(0.0f, 0.5f));
+	aimArrowHead2_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f));
 }
 
 void Player::Update() {
@@ -59,7 +75,7 @@ void Player::Update() {
 	worldTransform_.TransferMatrix();
 
 	// Update aim arrow sprite position and rotation when aiming
-	if (aimArrowSprite_ && (state_ == State::Idle || state_ == State::Charging)) {
+	if (aimArrowShaft_ && (state_ == State::Idle || state_ == State::Charging)) {
 		// Get player world position
 		Vector3 playerWorldPos = GetWorldPosition();
 		
@@ -84,12 +100,22 @@ void Player::Update() {
 		float screenX = (playerPosProj.x + 1.0f) * 0.5f * 1280.0f; // Assuming 1280 width
 		float screenY = (1.0f - playerPosProj.y) * 0.5f * 720.0f;  // Assuming 720 height
 		
-		// Set arrow position
-		aimArrowSprite_->SetPosition(Vector2(screenX, screenY));
+		// Set arrow shaft position and rotation
+		aimArrowShaft_->SetPosition(Vector2(screenX, screenY));
+		aimArrowShaft_->SetRotation(aimAngle_);
 		
-		// Set arrow rotation to match aim angle (convert from radians to degrees and adjust for sprite orientation)
-		// In 2D sprites, 0 degrees points right, so we convert the aim angle directly
-		aimArrowSprite_->SetRotation(aimAngle_);
+		// Calculate arrowhead positions (at the end of the shaft)
+		float shaftLength = 80.0f;
+		float arrowTipX = screenX + std::cos(aimAngle_) * shaftLength;
+		float arrowTipY = screenY + std::sin(aimAngle_) * shaftLength;
+		
+		// Upper arrowhead diagonal (angled at +135 degrees from shaft direction)
+		aimArrowHead1_->SetPosition(Vector2(arrowTipX, arrowTipY));
+		aimArrowHead1_->SetRotation(aimAngle_ + 2.356f); // +135 degrees in radians
+		
+		// Lower arrowhead diagonal (angled at -135 degrees from shaft direction)
+		aimArrowHead2_->SetPosition(Vector2(arrowTipX, arrowTipY));
+		aimArrowHead2_->SetRotation(aimAngle_ - 2.356f); // -135 degrees in radians
 	}
 }
 
@@ -102,10 +128,15 @@ void Player::Draw() {
 
 void Player::DrawArrow() {
 	// Draw aim arrow when aiming (Idle or Charging state)
-	if (aimArrowSprite_ && (state_ == State::Idle || state_ == State::Charging)) {
+	if (aimArrowShaft_ && (state_ == State::Idle || state_ == State::Charging)) {
 		DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 		Sprite::PreDraw(dxCommon->GetCommandList());
-		aimArrowSprite_->Draw();
+		
+		// Draw arrow components
+		aimArrowShaft_->Draw();
+		aimArrowHead1_->Draw();
+		aimArrowHead2_->Draw();
+		
 		Sprite::PostDraw();
 	}
 }
