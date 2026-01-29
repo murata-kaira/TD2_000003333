@@ -19,6 +19,12 @@ GameScene::~GameScene() {
 	delete modelGoal_;
 	delete sprite_;
 
+	// 矢印スプライトの削除
+	delete arrowUpSprite_;
+	delete arrowDownSprite_;
+	delete arrowLeftSprite_;
+	delete arrowRightSprite_;
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			delete worldTransformBlock;
@@ -89,6 +95,17 @@ void GameScene::Initialize() {
 	// ファイルからテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("st.png");
 	sprite_ = Sprite::Create(textureHandle_, {playerPosition.x, playerPosition.y});
+
+	// 矢印スプライトの初期化
+	arrowUpTextureHandle_ = TextureManager::Load("arrow_up.png");
+	arrowDownTextureHandle_ = TextureManager::Load("arrow_down.png");
+	arrowLeftTextureHandle_ = TextureManager::Load("arrow_left.png");
+	arrowRightTextureHandle_ = TextureManager::Load("arrow_right.png");
+	
+	arrowUpSprite_ = Sprite::Create(arrowUpTextureHandle_, {640.0f, 200.0f});
+	arrowDownSprite_ = Sprite::Create(arrowDownTextureHandle_, {640.0f, 520.0f});
+	arrowLeftSprite_ = Sprite::Create(arrowLeftTextureHandle_, {480.0f, 360.0f});
+	arrowRightSprite_ = Sprite::Create(arrowRightTextureHandle_, {800.0f, 360.0f});
 	
 }
 
@@ -181,6 +198,14 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	sprite_->Draw();
+
+	// プレイヤーが照準調整中の場合、矢印を表示
+	if (player_ && (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging)) {
+		arrowUpSprite_->Draw();
+		arrowDownSprite_->Draw();
+		arrowLeftSprite_->Draw();
+		arrowRightSprite_->Draw();
+	}
 
 	Sprite::PostDraw();
 

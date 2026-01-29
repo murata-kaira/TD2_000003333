@@ -69,6 +69,16 @@ class GameScene {
 	//スプライト
 	KamataEngine::Sprite* sprite_ = nullptr;
 
+	// 照準調整用の矢印スプライト
+	uint32_t arrowUpTextureHandle_ = 0;
+	uint32_t arrowDownTextureHandle_ = 0;
+	uint32_t arrowLeftTextureHandle_ = 0;
+	uint32_t arrowRightTextureHandle_ = 0;
+	KamataEngine::Sprite* arrowUpSprite_ = nullptr;
+	KamataEngine::Sprite* arrowDownSprite_ = nullptr;
+	KamataEngine::Sprite* arrowLeftSprite_ = nullptr;
+	KamataEngine::Sprite* arrowRightSprite_ = nullptr;
+
 	
 
 
