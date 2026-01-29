@@ -8,6 +8,10 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+Player::~Player() {
+	delete aimArrowSprite_;
+}
+
 void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position) {
 
 	assert(model);
@@ -21,6 +25,13 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
 	worldTransform_.translation_ = position;
 
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
+	// Initialize aim arrow sprite
+	aimArrowTextureHandle_ = TextureManager::Load("white1x1.png");
+	aimArrowSprite_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
+	aimArrowSprite_->SetSize(Vector2(60, 10)); // Arrow dimensions: 60 pixels long, 10 pixels wide
+	aimArrowSprite_->SetAnchorPoint(Vector2(0.0f, 0.5f)); // Anchor at left-center so it rotates from the base
+	aimArrowSprite_->SetColor(Vector4(1, 0, 0, 0.8f)); // Red color with slight transparency
 }
 
 void Player::Update() {
@@ -46,12 +57,56 @@ void Player::Update() {
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
 	worldTransform_.TransferMatrix();
+
+	// Update aim arrow sprite position and rotation when aiming
+	if (aimArrowSprite_ && (state_ == State::Idle || state_ == State::Charging)) {
+		// Get player world position
+		Vector3 playerWorldPos = GetWorldPosition();
+		
+		// Convert world position to screen position using view-projection matrix
+		Vector3 playerPosNDC;
+		playerPosNDC.x = playerWorldPos.x * camera_->matView.m[0][0] + playerWorldPos.y * camera_->matView.m[1][0] + playerWorldPos.z * camera_->matView.m[2][0] + camera_->matView.m[3][0];
+		playerPosNDC.y = playerWorldPos.x * camera_->matView.m[0][1] + playerWorldPos.y * camera_->matView.m[1][1] + playerWorldPos.z * camera_->matView.m[2][1] + camera_->matView.m[3][1];
+		playerPosNDC.z = playerWorldPos.x * camera_->matView.m[0][2] + playerWorldPos.y * camera_->matView.m[1][2] + playerWorldPos.z * camera_->matView.m[2][2] + camera_->matView.m[3][2];
+		
+		Vector3 playerPosProj;
+		playerPosProj.x = playerPosNDC.x * camera_->matProjection.m[0][0] + playerPosNDC.y * camera_->matProjection.m[1][0] + playerPosNDC.z * camera_->matProjection.m[2][0] + camera_->matProjection.m[3][0];
+		playerPosProj.y = playerPosNDC.x * camera_->matProjection.m[0][1] + playerPosNDC.y * camera_->matProjection.m[1][1] + playerPosNDC.z * camera_->matProjection.m[2][1] + camera_->matProjection.m[3][1];
+		float w = playerPosNDC.x * camera_->matProjection.m[0][3] + playerPosNDC.y * camera_->matProjection.m[1][3] + playerPosNDC.z * camera_->matProjection.m[2][3] + camera_->matProjection.m[3][3];
+		
+		// Perspective divide
+		if (w != 0) {
+			playerPosProj.x /= w;
+			playerPosProj.y /= w;
+		}
+		
+		// Convert from NDC (-1 to 1) to screen coordinates
+		float screenX = (playerPosProj.x + 1.0f) * 0.5f * 1280.0f; // Assuming 1280 width
+		float screenY = (1.0f - playerPosProj.y) * 0.5f * 720.0f;  // Assuming 720 height
+		
+		// Set arrow position
+		aimArrowSprite_->SetPosition(Vector2(screenX, screenY));
+		
+		// Set arrow rotation to match aim angle (convert from radians to degrees and adjust for sprite orientation)
+		// In 2D sprites, 0 degrees points right, so we convert the aim angle directly
+		aimArrowSprite_->SetRotation(aimAngle_);
+	}
 }
 
 void Player::Draw() {
 
 	if (isDead_ == false) {
 		model_->Draw(worldTransform_, *camera_);
+	}
+}
+
+void Player::DrawArrow() {
+	// Draw aim arrow when aiming (Idle or Charging state)
+	if (aimArrowSprite_ && (state_ == State::Idle || state_ == State::Charging)) {
+		DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+		Sprite::PreDraw(dxCommon->GetCommandList());
+		aimArrowSprite_->Draw();
+		Sprite::PostDraw();
 	}
 }
 

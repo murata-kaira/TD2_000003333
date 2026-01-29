@@ -17,11 +17,15 @@ public:
 		Moving    //ボールが移動中 - Ball is moving
 	};
 
+	~Player();
+
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	void Update();
 
 	void Draw();
+
+	void DrawArrow(); // Draw aim arrow (called separately for proper render order)
 
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
@@ -55,6 +59,10 @@ private:
 	MapChipField* mapChipField_ = nullptr;
 
 	KamataEngine::Vector3 velocity_ = {};
+
+	// Aim arrow sprite
+	KamataEngine::Sprite* aimArrowSprite_ = nullptr;
+	uint32_t aimArrowTextureHandle_ = 0;
 
 	
 	

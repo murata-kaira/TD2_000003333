@@ -186,6 +186,11 @@ void GameScene::Draw() {
 	}
 	Model::PostDraw();
 
+	// Draw aim arrow
+	if (player_) {
+		player_->DrawArrow();
+	}
+
 	// Draw UI elements
 	if (player_) {
 		// Display shot count
