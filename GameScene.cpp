@@ -171,7 +171,14 @@ void GameScene::Update() {
 		} else if (currentState == Player::State::Moving) {
 			// 移動中：実際の移動方向（速度ベクトル）を使用
 			KamataEngine::Vector3 velocity = player_->GetVelocity();
-			displayAngle = std::atan2(velocity.y, velocity.x);
+			float velocityMagnitude = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+			
+			// 速度が十分にある場合のみ速度方向を使用、そうでなければ照準角度を維持
+			if (velocityMagnitude > 0.01f) {
+				displayAngle = std::atan2(velocity.y, velocity.x);
+			} else {
+				displayAngle = player_->GetAimAngle();
+			}
 		}
 		
 		// 矢印を表示方向に配置（画面中央から指定距離）
