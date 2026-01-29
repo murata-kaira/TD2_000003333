@@ -33,21 +33,27 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
 	
 	// Arrow shaft - horizontal line
 	aimArrowShaft_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
-	aimArrowShaft_->SetSize(Vector2(80, 6)); // 80 pixels long, 6 pixels wide
-	aimArrowShaft_->SetAnchorPoint(Vector2(0.0f, 0.5f)); // Anchor at left-center
-	aimArrowShaft_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f)); // Red color
+	if (aimArrowShaft_) {
+		aimArrowShaft_->SetSize(Vector2(kArrowShaftLength, kArrowShaftWidth));
+		aimArrowShaft_->SetAnchorPoint(Vector2(0.0f, 0.5f)); // Anchor at left-center
+		aimArrowShaft_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f)); // Red color
+	}
 	
 	// Arrowhead part 1 (upper diagonal)
 	aimArrowHead1_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
-	aimArrowHead1_->SetSize(Vector2(20, 4)); // 20 pixels long, 4 pixels wide
-	aimArrowHead1_->SetAnchorPoint(Vector2(0.0f, 0.5f));
-	aimArrowHead1_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f));
+	if (aimArrowHead1_) {
+		aimArrowHead1_->SetSize(Vector2(kArrowHeadLength, kArrowHeadWidth));
+		aimArrowHead1_->SetAnchorPoint(Vector2(0.0f, 0.5f));
+		aimArrowHead1_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f));
+	}
 	
 	// Arrowhead part 2 (lower diagonal)
 	aimArrowHead2_ = Sprite::Create(aimArrowTextureHandle_, {640, 360});
-	aimArrowHead2_->SetSize(Vector2(20, 4)); // 20 pixels long, 4 pixels wide
-	aimArrowHead2_->SetAnchorPoint(Vector2(0.0f, 0.5f));
-	aimArrowHead2_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f));
+	if (aimArrowHead2_) {
+		aimArrowHead2_->SetSize(Vector2(kArrowHeadLength, kArrowHeadWidth));
+		aimArrowHead2_->SetAnchorPoint(Vector2(0.0f, 0.5f));
+		aimArrowHead2_->SetColor(Vector4(1, 0.2f, 0.2f, 0.9f));
+	}
 }
 
 void Player::Update() {
@@ -75,7 +81,7 @@ void Player::Update() {
 	worldTransform_.TransferMatrix();
 
 	// Update aim arrow sprite position and rotation when aiming
-	if (aimArrowShaft_ && (state_ == State::Idle || state_ == State::Charging)) {
+	if (aimArrowShaft_ && aimArrowHead1_ && aimArrowHead2_ && (state_ == State::Idle || state_ == State::Charging)) {
 		// Get player world position
 		Vector3 playerWorldPos = GetWorldPosition();
 		
@@ -97,25 +103,24 @@ void Player::Update() {
 		}
 		
 		// Convert from NDC (-1 to 1) to screen coordinates
-		float screenX = (playerPosProj.x + 1.0f) * 0.5f * 1280.0f; // Assuming 1280 width
-		float screenY = (1.0f - playerPosProj.y) * 0.5f * 720.0f;  // Assuming 720 height
+		float screenX = (playerPosProj.x + 1.0f) * 0.5f * kScreenWidth;
+		float screenY = (1.0f - playerPosProj.y) * 0.5f * kScreenHeight;
 		
 		// Set arrow shaft position and rotation
 		aimArrowShaft_->SetPosition(Vector2(screenX, screenY));
 		aimArrowShaft_->SetRotation(aimAngle_);
 		
 		// Calculate arrowhead positions (at the end of the shaft)
-		float shaftLength = 80.0f;
-		float arrowTipX = screenX + std::cos(aimAngle_) * shaftLength;
-		float arrowTipY = screenY + std::sin(aimAngle_) * shaftLength;
+		float arrowTipX = screenX + std::cos(aimAngle_) * kArrowShaftLength;
+		float arrowTipY = screenY + std::sin(aimAngle_) * kArrowShaftLength;
 		
 		// Upper arrowhead diagonal (angled at +135 degrees from shaft direction)
 		aimArrowHead1_->SetPosition(Vector2(arrowTipX, arrowTipY));
-		aimArrowHead1_->SetRotation(aimAngle_ + 2.356f); // +135 degrees in radians
+		aimArrowHead1_->SetRotation(aimAngle_ + kArrowHeadAngle);
 		
 		// Lower arrowhead diagonal (angled at -135 degrees from shaft direction)
 		aimArrowHead2_->SetPosition(Vector2(arrowTipX, arrowTipY));
-		aimArrowHead2_->SetRotation(aimAngle_ - 2.356f); // -135 degrees in radians
+		aimArrowHead2_->SetRotation(aimAngle_ - kArrowHeadAngle);
 	}
 }
 

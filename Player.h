@@ -1,7 +1,8 @@
 #pragma once
 #include "KamataEngine.h"
 #include "MyMath.h"
-#include"Enemy.h"
+#include "Enemy.h"
+#include <numbers>
 
 class MapChipField;
 class Enemy;
@@ -65,6 +66,15 @@ private:
 	KamataEngine::Sprite* aimArrowHead1_ = nullptr;
 	KamataEngine::Sprite* aimArrowHead2_ = nullptr;
 	uint32_t aimArrowTextureHandle_ = 0;
+
+	// Arrow display constants
+	static inline const float kArrowShaftLength = 80.0f;
+	static inline const float kArrowShaftWidth = 6.0f;
+	static inline const float kArrowHeadLength = 20.0f;
+	static inline const float kArrowHeadWidth = 4.0f;
+	static inline const float kArrowHeadAngle = std::numbers::pi_v<float> * 3.0f / 4.0f; // 135 degrees
+	static inline const float kScreenWidth = 1280.0f;
+	static inline const float kScreenHeight = 720.0f;
 
 	
 	
