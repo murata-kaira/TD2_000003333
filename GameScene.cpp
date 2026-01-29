@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <numbers>
 
 using namespace KamataEngine;
 // デストラクト
@@ -107,12 +108,12 @@ void GameScene::Initialize() {
 	arrowDownSprite_->SetSize({kArrowSize, kArrowSize});
 
 	// 矢印の回転を設定（上矢印を基準として回転）
-	constexpr float kPiOver2 = 1.57079632679f;  // 90度
-	constexpr float kPi = 3.14159265359f;        // 180度
-	arrowLeftSprite_->SetRotation(-kPiOver2);    // -90度
-	arrowRightSprite_->SetRotation(kPiOver2);    // 90度
-	arrowUpSprite_->SetRotation(0.0f);            // 0度
-	arrowDownSprite_->SetRotation(kPi);           // 180度
+	const float kPiOver2 = std::numbers::pi_v<float> / 2.0f;  // 90度
+	const float kPi = std::numbers::pi_v<float>;                // 180度
+	arrowLeftSprite_->SetRotation(-kPiOver2);                   // -90度
+	arrowRightSprite_->SetRotation(kPiOver2);                   // 90度
+	arrowUpSprite_->SetRotation(0.0f);                          // 0度
+	arrowDownSprite_->SetRotation(kPi);                         // 180度
 
 	// 矢印の表示状態を初期化
 	shouldShowArrows_ = false;
@@ -172,10 +173,11 @@ void GameScene::Update() {
 	ChangePhase();
 
 	// 照準調整中に矢印の位置を更新
-	shouldShowArrows_ = player_ && (player_->GetState() == Player::State::Idle || player_->GetState() == Player::State::Charging);
+	Player::State currentState = player_ ? player_->GetState() : Player::State::Moving;
+	shouldShowArrows_ = player_ && (currentState == Player::State::Idle || currentState == Player::State::Charging);
 	
 	if (shouldShowArrows_) {
-		// 矢印を画面中央（プレイヤーの位置）の周りに配置
+		// 矢印を画面中央の周りに配置
 		arrowLeftSprite_->SetPosition({kScreenCenterX - kArrowDistance, kScreenCenterY});
 		arrowRightSprite_->SetPosition({kScreenCenterX + kArrowDistance, kScreenCenterY});
 		arrowUpSprite_->SetPosition({kScreenCenterX, kScreenCenterY - kArrowDistance});
