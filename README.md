@@ -22,6 +22,7 @@ A golf game set in the 100 Acre Wood. Control the ball skillfully to reach the g
 1. **タイトル画面**: SPACE キーでゲーム開始
 2. **ゲーム画面**: 
    - 矢印キーで照準を調整（上下左右に角度を変更可能）
+   - **赤い矢印が照準方向を表示します** (Red arrow shows aim direction)
    - SPACE キーを押してパワーをチャージ
    - SPACE キーを離してボールを発射
    - より少ないショット数でゴールを目指しましょう！
@@ -32,6 +33,7 @@ A golf game set in the 100 Acre Wood. Control the ball skillfully to reach the g
 - **Shots**: 現在のショット数
 - **Power**: チャージ中のパワーメーター（0-100%）
 - **Angle**: 現在の照準角度（度数）
+- **赤い矢印** (Red Arrow): ボールを打つ方向を示す視覚的なインジケーター (Visual indicator showing shot direction)
 
 ## 技術仕様 (Technical Details)
 
