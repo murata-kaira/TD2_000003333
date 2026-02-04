@@ -5,6 +5,7 @@
 #include <numbers>
 #include <cmath>
 
+
 using namespace KamataEngine;
 using namespace MathUtility;
 
